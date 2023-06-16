@@ -1,0 +1,67 @@
+.footer {
+  position: relative; 
+  padding-top: 2rem;
+  padding-bottom: 2rem; 
+  background: #6F4E37;
+}
+
+.container_footer {
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+}
+
+.container_footer > a {
+  color: currentColor; 
+  text-decoration: none; 
+  cursor: pointer; 
+}
+
+.container_footer > a > div {
+  display: flex; 
+  overflow: hidden; 
+  position: relative; 
+  margin-left: 1rem;
+  margin-right: 1rem; 
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform; 
+  transition-timing-function: cubic-bezier(0, 0, 0.2, 1); 
+  font-size: 1rem;
+  line-height: 1.5rem; 
+  text-align: center; 
+  justify-content: center; 
+  align-items: center; 
+  width: 4rem; 
+  height: 4rem; 
+  border-radius: 0.5rem; 
+  border-width: 2px; 
+  border-color: transparent; 
+  cursor: pointer; 
+  background: #E5BA73;
+  color: #6F4E37;
+}
+
+.container_footer > a > div:hover {
+  border-color: #FAEAB1;
+}
+
+.BigText {
+  font-size: 1.875rem;
+  line-height: 2.25rem; 
+}
+
+.flex {
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+}
+
+.flex > div {
+  margin-right: 0.75rem; 
+  margin-top: 2rem; 
+  font-weight: 600; 
+  color: #FAEAB1;
+}
+
+.flex > span {
+  margin-top: 2rem; 
+}

@@ -1,0 +1,28 @@
+.container_card {
+  padding: 1rem; 
+  margin: 1.25rem; 
+  border-radius: 0.5rem; 
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); 
+  background-color: #FAEAB1;
+}
+
+.container_card > h3 {
+  margin-bottom: 0.5rem; 
+  font-size: 1.25rem;
+  line-height: 1.75rem; 
+  font-weight: 700; 
+  color: #6F4E37;
+}
+
+.message {
+  margin-bottom: 0.5rem; 
+  font-weight: 600; 
+  color: #1A120B;
+}
+
+.timestamp {
+  color: #374151; 
+  font-size: 0.75rem;
+  line-height: 1rem; 
+}
+
