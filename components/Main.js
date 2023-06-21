@@ -1,37 +1,66 @@
 import Image from 'next/image'
-import { ethers } from 'ethers'
 import React, { useEffect, useState } from 'react'
 import Loading from './Loading.js'
-import { TransactionPopup, ErrorPopup } from './Popups.js'
 import styles from '../styles/Main.module.css'
+import { Web3Button } from '@web3modal/react'
+import {
+  useAccount,
+  useWaitForTransaction,
+  useContractWrite,
+  usePrepareContractWrite,
+} from 'wagmi'
+import { parseEther } from 'viem'
 
 import { contractAddress, contractABI } from '../utils/contractInfo.js'
 
-/**       
-    https://goerli.etherscan.io/address/0x3eFb409C56306b82d2B59eef266B1067678f5CdA
-*/
-
-function Main({ currentAccount, setCurrentAccount }) {
+function Main({ refetchMemos }) {
   // Component state
   const [name, setName] = useState('')
   const [message, setMessage] = useState('')
 
+  // Component Wagmi state to avoid hydration warning/error
+  const [connectionStat, setConnectionStat] = useState()
+  const [addr, setAddr] = useState()
+
   const [loading, setLoading] = useState(false)
 
-  const [messagePopup, setMessagePopup] = useState('')
-  const [isVisible, setIsVisible] = useState(false)
+  // const [messagePopup, setMessagePopup] = useState('')
+  // const [isVisible, setIsVisible] = useState(false)
 
-  const [error, setError] = useState(false)
-  const [errorMessage, setErrorMessage] = useState('')
+  // Wagmi Account
+  const { address, isConnected } = useAccount()
 
-  const hidePopup = () => {
-    if (!!isVisible) {
-      setIsVisible(false)
-    }
-    if (!!error) {
-      setError(false)
-    }
-  }
+  // Wagmi Write call
+  const { config } = usePrepareContractWrite({
+    address: contractAddress,
+    abi: contractABI,
+    functionName: 'buyCoffee',
+    args: [name, message],
+    value: parseEther('0.001'),
+    onSuccess(data) {
+      console.log('Success prepare buyCoffee', data)
+    },
+  })
+  const { write: buyMeACoffee, data: dataBuyMeACoffee } = useContractWrite({
+    ...config,
+    onSuccess(data) {
+      console.log('Success write buyCoffee', data)
+    },
+  })
+
+  useWaitForTransaction({
+    hash: dataBuyMeACoffee?.hash,
+    enabled: dataBuyMeACoffee,
+    onSuccess(data) {
+      refetchMemos()
+    },
+  })
+
+  // copy the value to state here
+  useEffect(() => {
+    setConnectionStat(isConnected)
+    setAddr(address)
+  }, [address, isConnected])
 
   const onNameChange = (event) => {
     setName(event.target.value)
@@ -41,148 +70,8 @@ function Main({ currentAccount, setCurrentAccount }) {
     setMessage(event.target.value)
   }
 
-  const checkNetwork = async (provider) => {
-    const { chainId } = await provider.getNetwork()
-
-    if (chainId !== 5) {
-      console.log(`Please go to the Goerli Network`)
-
-      setError(true)
-      setErrorMessage('Please go to the Goerli Network')
-
-      await ethereum.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: '0x5' }], // chainId must be in HEX with 0x in front
-      })
-    }
-  }
-
-  // Wallet connection logic
-  const isWalletConnected = async () => {
-    setLoading(true)
-
-    try {
-      const { ethereum } = window
-
-      const accounts = await ethereum.request({ method: 'eth_accounts' })
-
-      if (accounts.length > 0) {
-        const account = accounts[0]
-        console.log('wallet is connected! ' + account)
-
-        const provider = new ethers.providers.Web3Provider(ethereum)
-
-        await checkNetwork(provider)
-
-        setCurrentAccount(account)
-        setLoading(false)
-      } else {
-        console.log('Make sure MetaMask is connected')
-        setLoading(false)
-      }
-    } catch (error) {
-      console.log('error: ', error)
-      setLoading(false)
-    }
-  }
-
-  const connectWallet = async () => {
-    setLoading(true)
-
-    try {
-      const { ethereum } = window
-
-      if (!ethereum) {
-        console.log('please install MetaMask')
-        setError(true)
-        setErrorMessage('Please install MetaMask')
-      }
-
-      const accounts = await ethereum.request({
-        method: 'eth_requestAccounts',
-      })
-
-      setCurrentAccount(accounts[0])
-
-      const provider = new ethers.providers.Web3Provider(ethereum)
-
-      await checkNetwork(provider)
-
-      setLoading(false)
-    } catch (error) {
-      console.log(error)
-      setLoading(false)
-    }
-  }
-
-  const buyCoffee = async () => {
-    setLoading(true)
-
-    try {
-      const { ethereum } = window
-
-      if (ethereum) {
-        const provider = new ethers.providers.Web3Provider(ethereum, 'any')
-
-        await checkNetwork(provider)
-
-        const signer = provider.getSigner()
-        const buyMeACoffee = new ethers.Contract(
-          contractAddress,
-          contractABI,
-          signer
-        )
-
-        console.log('buying coffee..')
-        const coffeeTxn = await buyMeACoffee.buyCoffee(
-          name ? name : 'John',
-          message ? message : 'Enjoy your coffee!',
-          { value: ethers.utils.parseEther('0.001') }
-        )
-
-        await coffeeTxn.wait()
-
-        console.log('mined ', coffeeTxn.hash)
-
-        console.log('coffee purchased!')
-
-        // Clear the form fields.
-        setName('')
-        setMessage('')
-        setIsVisible(true)
-        setMessagePopup(coffeeTxn.hash.toString())
-        setLoading(false)
-      }
-    } catch (error) {
-      console.log(error)
-      setLoading(false)
-      setError(true)
-      setErrorMessage(
-        'User denied transaction signature or something gone wrong'
-      )
-    }
-  }
-
-  useEffect(() => {
-    isWalletConnected()
-  }, [])
-
   return (
-    <div className={styles.main_container}>
-      <div className={styles.popup}>
-        <TransactionPopup
-          className="fixed"
-          message={messagePopup}
-          hidePopup={hidePopup}
-          isVisible={isVisible}
-        />
-        <ErrorPopup
-          className="fixed"
-          message={errorMessage}
-          hidePopup={hidePopup}
-          error={error}
-        />
-      </div>
+    <main className={styles.main_container}>
       <div className={styles.container}>
         <div className={styles.image_container}>
           <Image
@@ -191,12 +80,13 @@ function Main({ currentAccount, setCurrentAccount }) {
             src="/presentation.jpg"
             layout="fill"
             objectFit="contain"
+            alt="Chefleo"
           />
         </div>
 
-        <div className={styles.container_form}>
-          {currentAccount ? (
-            <div>
+        <section className={styles.container_form}>
+          {connectionStat && (
+            <>
               <form className={styles.form}>
                 <div>
                   <label>Name</label>
@@ -229,7 +119,7 @@ function Main({ currentAccount, setCurrentAccount }) {
                     className={styles.btn}
                     disabled={loading === true ? 'disabled' : ''}
                     type="button"
-                    onClick={buyCoffee}
+                    onClick={() => buyMeACoffee?.()}
                   >
                     {loading ? (
                       <Loading text={'Buying coffee..'} />
@@ -239,18 +129,10 @@ function Main({ currentAccount, setCurrentAccount }) {
                   </button>
                 </div>
               </form>
-            </div>
-          ) : (
-            <button className={styles.btn} onClick={connectWallet}>
-              {loading ? (
-                // <Loading text={'Loading...'}/>
-                <></>
-              ) : (
-                'Connect your wallet'
-              )}
-            </button>
+            </>
           )}
-        </div>
+          <Web3Button icon="hide" label="Connect Wallet" balance="hide" />
+        </section>
 
         <div className={styles.svg_container}>
           <svg
@@ -263,7 +145,7 @@ function Main({ currentAccount, setCurrentAccount }) {
           </svg>
         </div>
       </div>
-    </div>
+    </main>
   )
 }
 

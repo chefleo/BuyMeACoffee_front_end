@@ -1,5 +1,5 @@
-import React from 'react';
-import styles from "../styles/Card.module.css";
+import React from 'react'
+import styles from '../styles/Card.module.css'
 
 function Card({ name, message, timestamp }) {
   return (
@@ -8,7 +8,7 @@ function Card({ name, message, timestamp }) {
       <p className={styles.message}>{message}</p>
       <p className={styles.timestamp}>Timestamp: {timestamp.toString()}</p>
     </div>
-  );
+  )
 }
 
-export default Card;
+export default Card
