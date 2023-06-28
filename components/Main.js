@@ -6,8 +6,10 @@ import { Web3Button } from '@web3modal/react'
 import {
   useAccount,
   useWaitForTransaction,
-  useContractWrite,
   usePrepareContractWrite,
+  useContractWrite,
+  useNetwork,
+  useSwitchNetwork,
 } from 'wagmi'
 import { parseEther } from 'viem'
 
@@ -28,7 +30,15 @@ function Main({ refetchMemos }) {
   // const [isVisible, setIsVisible] = useState(false)
 
   // Wagmi Account
-  const { address, isConnected } = useAccount()
+  const { isConnected } = useAccount()
+  const { chain } = useNetwork()
+  const { switchNetwork } = useSwitchNetwork()
+
+  useEffect(() => {
+    if (chain?.id !== 11155111 && chain?.name !== 'Sepolia') {
+      switchNetwork?.(11155111)
+    }
+  }, [chain, switchNetwork])
 
   // Wagmi Write call
   const { config } = usePrepareContractWrite({
@@ -36,11 +46,13 @@ function Main({ refetchMemos }) {
     abi: contractABI,
     functionName: 'buyCoffee',
     args: [name, message],
+    enabled: name !== '' && message !== '',
     value: parseEther('0.001'),
     onSuccess(data) {
       console.log('Success prepare buyCoffee', data)
     },
   })
+
   const { write: buyMeACoffee, data: dataBuyMeACoffee } = useContractWrite({
     ...config,
     onSuccess(data) {
@@ -59,8 +71,7 @@ function Main({ refetchMemos }) {
   // copy the value to state here
   useEffect(() => {
     setConnectionStat(isConnected)
-    setAddr(address)
-  }, [address, isConnected])
+  }, [isConnected])
 
   const onNameChange = (event) => {
     setName(event.target.value)
@@ -150,3 +161,29 @@ function Main({ refetchMemos }) {
 }
 
 export default Main
+
+// import { useContractWrite, useWaitForTransaction } from 'wagmi'
+
+// function Main() {
+
+//   // ... code ...
+
+//   const { write: buyMeACoffee, data: dataBuyMeACoffee } = useContractWrite({
+//     ...config,
+//     onSuccess(data) {
+//       console.log('Success write buyCoffee', data)
+//     },
+//   })
+
+//   useWaitForTransaction({
+//     hash: dataBuyMeACoffee?.hash,
+//     enabled: dataBuyMeACoffee,
+//     onSuccess(data) {
+//       refetchMemos()
+//     },
+//   })
+
+//   return (
+//     // .. code ..
+//   )
+// }

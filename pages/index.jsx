@@ -10,7 +10,7 @@ import { useContractRead } from 'wagmi'
 
 export default function Home() {
 
-  const { data: Memos, refetch: refetchMemos } = useContractRead({
+  const { data: memos, refetch: refetchMemos, isFetched } = useContractRead({
     address: contractAddress,
     abi: contractABI,
     functionName: 'getMemos',
@@ -33,14 +33,14 @@ export default function Home() {
 
       <Main refetchMemos={refetchMemos}/>
 
-      {/* <div className={styles.grid}>
-        {contractLoaded && (memos.map((memo, idx) => {
-          const timestamp = new Date(memo.timestamp * 1000);
+      <div className={styles.grid}>
+        {isFetched && (memos.map((memo, idx) => {
+          const timestamp = new Date(memo.timestamp.toString() * 1000);
           return (
             <Card key={idx} id={idx} name={memo.name} message={memo.message} timestamp={timestamp} />
           )
         }))}
-      </div> */}
+      </div>
 
       <Footer />
 
