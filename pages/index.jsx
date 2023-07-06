@@ -34,7 +34,7 @@ export default function Home() {
       <Main refetchMemos={refetchMemos}/>
 
       <div className={styles.grid}>
-        {isFetched && (memos.map((memo, idx) => {
+        {isFetched && memos !== undefined && (memos.map((memo, idx) => {
           const timestamp = new Date(memo.timestamp.toString() * 1000);
           return (
             <Card key={idx} id={idx} name={memo.name} message={memo.message} timestamp={timestamp} />

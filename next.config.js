@@ -3,6 +3,7 @@ const nextConfig = {
   reactStrictMode: true,
   env: {
     WALLET_CONNECT_PROJECT_ID: process.env.WALLET_CONNECT_PROJECT_ID,
+    INFURA_ID: process.env.INFURA_ID,
   },
   images: {
     unoptimized: true,
