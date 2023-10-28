@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { CoinbaseWalletConnector } from "wagmi/connectors/coinbaseWallet";
 import Loading from "./Loading.js";
 import styles from "../styles/Main.module.css";
+import PresentationImage from "../public/presentation.jpg";
 // import { Web3Button } from '@web3modal/react'
 import {
   useAccount,
@@ -25,7 +26,7 @@ const ImagePresentation = () => {
         <Image
           priority={true}
           className={styles.image}
-          src="/presentation.jpg"
+          src={PresentationImage}
           layout="fill"
           objectFit="contain"
           alt="Chefleo"
