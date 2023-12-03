@@ -1,4 +1,5 @@
 import Image from "next/image";
+import PresentationImage from "../public/presentation.jpg";
 import React, { useEffect, useState } from "react";
 import Loading from "./Loading.js";
 import styles from "../styles/Main.module.css";
@@ -118,7 +119,7 @@ function Main({ refetchMemos }) {
           <Image
             priority={true}
             className={styles.image}
-            src="/presentation.jpg"
+            src={PresentationImage}
             layout="fill"
             objectFit="contain"
             alt="Chefleo"
