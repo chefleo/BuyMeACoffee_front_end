@@ -18,6 +18,23 @@ import { Toaster, toast } from "sonner";
 
 import { contractAddress, contractABI } from "../utils/contractInfo.js";
 
+const ImagePresentation = () => {
+  return (
+    <>
+      <div className={styles.image_container}>
+        <Image
+          priority={true}
+          className={styles.image}
+          src={PresentationImage}
+          layout="fill"
+          objectFit="contain"
+          alt="Chefleo"
+        />
+      </div>
+    </>
+  );
+};
+
 function Main({ refetchMemos }) {
   // Component state
   const [name, setName] = useState("");
@@ -115,16 +132,7 @@ function Main({ refetchMemos }) {
     <main className={styles.main_container}>
       <div className={styles.container}>
         <Toaster position="top-center" richColors />
-        <div className={styles.image_container}>
-          <Image
-            priority={true}
-            className={styles.image}
-            src={PresentationImage}
-            layout="fill"
-            objectFit="contain"
-            alt="Chefleo"
-          />
-        </div>
+        <ImagePresentation />
 
         <section className={styles.container_form}>
           {connectionStat && (
