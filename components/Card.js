@@ -7,11 +7,13 @@ function Card({ name, message, timestamp }) {
   const [loading, setLoading] = useState();
 
   return (
-    <div className={styles.container_card}>
-      <h3>From: {name}</h3>
-      <p className={styles.message}>{message}</p>
-      <p className={styles.timestamp}>Timestamp: {timestamp.toString()}</p>
-    </div>
+    <>
+      <div className={styles.container_card}>
+        <h3>From: {name}</h3>
+        <p className={styles.message}>{message}</p>
+        <p className={styles.timestamp}>Timestamp: {timestamp.toString()}</p>
+      </div>
+    </>
   );
 }
 

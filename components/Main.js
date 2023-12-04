@@ -184,7 +184,7 @@ function Main({ refetchMemos }) {
               </form>
             </>
           )}
-          <Web3Button icon="hide" label="Connect Wallet" balance="hide" />
+          <w3m-button icon="hide" label="Connect Wallet" balance="hide" />
         </section>
 
         <div className={styles.svg_container}>

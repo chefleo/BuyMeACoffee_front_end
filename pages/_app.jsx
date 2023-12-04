@@ -1,43 +1,73 @@
 import "../styles/globals.css";
-import {
-  EthereumClient,
-  w3mConnectors,
-  w3mProvider,
-} from "@web3modal/ethereum";
-import { Web3Modal } from "@web3modal/react";
-import { configureChains, createConfig, WagmiConfig } from "wagmi";
+
+import { createWeb3Modal } from "@web3modal/wagmi/react";
+import { walletConnectProvider } from "@web3modal/wagmi";
+
+import { WagmiConfig, configureChains, createConfig } from "wagmi";
+import { publicProvider } from "wagmi/providers/public";
+
+import { InjectedConnector } from "wagmi/connectors/injected";
+import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
+
 import { zkSyncTestnet } from "wagmi/chains";
+import { useEffect, useState } from "react";
 
 if (!process.env.WALLET_CONNECT_PROJECT_ID) {
   throw new Error("You need to provide WALLET_CONNECT_PROJECT_ID env variable");
 }
 
-const chains = [zkSyncTestnet];
 const projectId = process.env.WALLET_CONNECT_PROJECT_ID;
 
-const { publicClient } = configureChains(chains, [w3mProvider({ projectId })]);
+const metadata = {
+  name: "Web3Modal",
+  description: "Web3Modal Example",
+  url: "https://web3modal.com",
+  icons: ["https://avatars.githubusercontent.com/u/37784886"],
+};
+
+const { chains, publicClient } = configureChains(
+  [zkSyncTestnet],
+  [walletConnectProvider({ projectId }), publicProvider()]
+);
+
 const wagmiConfig = createConfig({
   autoConnect: true,
-  connectors: w3mConnectors({ projectId, version: 1, chains }),
+  connectors: [
+    new WalletConnectConnector({
+      chains,
+      options: { projectId, showQrModal: false, metadata },
+    }),
+    new InjectedConnector({ chains, options: { shimDisconnect: true } }),
+  ],
   publicClient,
 });
-const ethereumClient = new EthereumClient(wagmiConfig, chains);
+
+createWeb3Modal({
+  wagmiConfig,
+  projectId,
+  chains,
+  themeVariables: {
+    "--w3m-color-mix": "#C58940",
+    "--w3m-accent": "#C58940",
+  },
+});
 
 function MyApp({ Component, pageProps }) {
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    setIsReady(true);
+  }, []);
+
   return (
     <>
-      <WagmiConfig config={wagmiConfig}>
-        <Component {...pageProps} />
-      </WagmiConfig>
-
-      <Web3Modal
-        projectId={projectId}
-        ethereumClient={ethereumClient}
-        themeVariables={{
-          "--w3m-background-color": "#C58940",
-          "--w3m-accent-color": "#C58940",
-        }}
-      />
+      {isReady ? (
+        <WagmiConfig config={wagmiConfig}>
+          <Component {...pageProps} />
+        </WagmiConfig>
+      ) : (
+        ""
+      )}
     </>
   );
 }
